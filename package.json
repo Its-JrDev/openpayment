@@ -1,0 +1,22 @@
+{
+  "name": "interledger-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "incoming": "node incoming.js",
+    "quote": "node quote.js",
+    "outgoing": "node outgoing",
+    "server": "node server.js",
+    "final": "node final.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@interledger/open-payments": "^7.4.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14",
+    "uuid": "^14.0.1"
+  }
+}
