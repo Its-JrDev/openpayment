@@ -5,9 +5,9 @@
   "scripts": {
     "incoming": "node incoming.js",
     "quote": "node quote.js",
-    "outgoing": "node outgoing",
+    "interact": "node interact.js",
     "server": "node server.js",
-    "final": "node final.js"
+    "outgoing": "node outgoing"
   },
   "author": "",
   "license": "ISC",

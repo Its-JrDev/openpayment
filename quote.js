@@ -15,7 +15,7 @@ const createQuote = async () => {
         {
             method: 'ilp',
             walletAddress: SENDER_WALLET,
-            receiver: "https://ilp.interledger-test.dev/f537937b-7016-481b-b655-9f0d1014822c/incoming-payments/1b61dd27-2de0-4fb8-b1e6-0c847866bb17"
+            receiver: "https://ilp.interledger-test.dev/f537937b-7016-481b-b655-9f0d1014822c/incoming-payments/4c5c542e-43bb-4025-90da-9fc208782e0b"
         }
     )
 

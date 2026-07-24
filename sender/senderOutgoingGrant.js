@@ -19,7 +19,7 @@ export const getOutgoingGrant = async (quote) => {
                         type: 'outgoing-payment',
                         actions: ['list', 'list-all', 'read', 'read-all', 'create'],
                         limits: {
-                            quoteId: "https://ilp.interledger-test.dev/f537937b-7016-481b-b655-9f0d1014822c/quotes/2eaae76b-34b6-453e-9631-215576c88ac8"
+                            quoteId: "https://ilp.interledger-test.dev/f537937b-7016-481b-b655-9f0d1014822c/quotes/b33e6590-26b3-4a29-9895-3056903e9ada"
                         }
                     }
                 ]
