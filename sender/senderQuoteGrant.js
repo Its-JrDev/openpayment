@@ -1,7 +1,3 @@
-import {
-    createAuthenticatedClient,
-    isFinalizedGrantWithAccessToken
-} from '@interledger/open-payments'
 import { senderClient } from './clientSender.js'
 import { walletSenderAddress } from './senderWallet.js'
 

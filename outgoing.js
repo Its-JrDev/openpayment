@@ -15,7 +15,7 @@ const outgoingPayment = async () => {
         },
         {
             walletAddress: SENDER_WALLET,
-            quoteId: "https://ilp.interledger-test.dev/f537937b-7016-481b-b655-9f0d1014822c/quotes/b33e6590-26b3-4a29-9895-3056903e9ada"
+            quoteId: ""
         }
     )
 
