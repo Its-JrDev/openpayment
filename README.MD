@@ -188,6 +188,28 @@ app.listen(port, ()=>console.dir(`Running at port ${port}`))
 
   ```
 
+  **Respuesta**
+  ```js
+    {
+        id: string, //Se usará en quote.js
+        walletAddress: string,
+        incomingAmount: { value: string, assetCode: string, assetScale: number },
+        receivedAmount: { value: string, assetCode: string, assetScale: number },
+        completed: boolean,
+        createdAt: string,
+        expiresAt: string,
+        methods: [
+            {
+                type: string,
+                ilpAddress: string,
+                sharedSecret: string
+            }
+        ]
+    }
+
+  ```
+
+
 2. Crear Quote
 
   ```mermaid
@@ -260,6 +282,20 @@ app.listen(port, ()=>console.dir(`Running at port ${port}`))
 
   createQuote();
   ```
+  **Respuesta**
+
+  ```js
+    {
+        id: string, //se usará en interact.js y outgoing.js
+        walletAddress: string,
+        receiveAmount: { value: string, assetCode: string, assetScale: number },
+        debitAmount: { value: string, assetCode: string, assetScale: number },
+        receiver: string,
+        expiresAt: string,
+        createdAt: string,
+        method: string
+    }
+  ```
 
 3. Crear iteración
 
@@ -307,7 +343,7 @@ export const getOutgoingGrant = async (quote) => {
                 start: ['redirect'],
                 finish: {
                     method: "redirect",
-                    uri: "http://localhost:3000",
+                    uri: "http://localhost:3000", //Esta url corresponde al servidor que levantamos de express
                     nonce: uuidv4()
                 }
             }
@@ -332,6 +368,21 @@ const interact = async () => {
 }
 
 interact();
+```
+
+**Repuesta**
+```js
+{
+  interact: {
+    redirect: string, //Este enlace es el que abriremos para darle al botón de "Accept"
+    finish: string
+  },
+  continue: {
+    access_token: { value: string }, //se usará en outgoing.js
+    uri: string, //se usará en outgoing.js
+    wait: number
+  }
+}
 ```
 
 4. Ejecutar Iteración
@@ -373,7 +424,7 @@ sequenceDiagram
     interfaz->>server express: interact_ref
     Nuestro servicio->>Auth: Request continue grant
     Auth-->>Nuestro servicio: Access token
-    Nuestro servicio->>Sender: 3. quote Id
+    Nuestro servicio->>Sender: 3. quote Id, interact_ref, uri
     Sender-->>Nuestro servicio: Confirmación
 ```
 
@@ -424,4 +475,22 @@ const outgoingPayment = async () => {
 }
 
 outgoingPayment()
+```
+
+**Respuesta**
+
+```js
+{
+  id: string,
+  walletAddress: string,
+  quoteId: string,
+  receiveAmount: { value: string, assetCode: string, assetScale: number },
+  debitAmount: { value: string, assetCode: string, assetScale: number },
+  sentAmount: { value: string, assetCode: string, assetScale: number },
+  receiver: string,
+  failed: boolean,
+  createdAt: string,
+  grantSpentReceiveAmount: { value: string, assetCode: string, assetScale: number },
+  grantSpentDebitAmount: { value: string, assetCode: string, assetScale: number }
+}
 ```
