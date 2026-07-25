@@ -21,11 +21,16 @@ Hacer click en: https://wallet.interledger-test.dev/
 
 Una vez registrados realizamos click en el botón "Accounts" en el panel de la izquirda.<br>
 Hacemos click en "New Account", nombramos nuestra nueva cuenta y seleccionamos una moneda.<br>
-Creamos 2 Wallets, una para enviar y otra para recibir la transferencia.
+Creamos 2 Wallets, una para enviar y otra para recibir la transferencia.<br>
+Desde Settings descargamos los developer keys de cada una de nuestras Wallets
 
 ## 3 Familiarizarnos con la terminología de interledger
 
-
+**Ledger:** Libro contable
+**Interledger:** Sistema de pago entre multiples libros contables
+**Conector:** Puente entre libros contables
+**Ilp:** Interledger protocol
+**Grant:** Permiso digital del estandar GNAP
 
 ## 4 Crear una transacción desde nuestro editor
 
@@ -62,6 +67,7 @@ npm i @interledger/open-payments uuid express
 2. Guardamos las constantes que contienen
 
   ```js
+  //constants.js
   export const SENDER_KEY_ID = ""
   export const RECEIVER_KEY_ID = ""
   export const SENDER_WALLET = ""
