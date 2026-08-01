@@ -4,3 +4,5 @@ privatereceiver.key
 privatesender.key
 AGENTS.md
 .vscode/
+target/
+*.db
