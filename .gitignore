@@ -2,3 +2,5 @@
 /node_modules
 privatereceiver.key
 privatesender.key
+AGENTS.md
+.vscode/
