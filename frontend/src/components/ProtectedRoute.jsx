@@ -1,8 +1,8 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useSession } from '@/hooks/useSession'
+import { useAuth } from '@/hooks/useAuth'
 
-function ProtectedRoute() {
-  const { isAuthenticated } = useSession()
+export default function ProtectedRoute() {
+  const { isAuthenticated } = useAuth()
   const location = useLocation()
 
   if (!isAuthenticated) {
@@ -11,5 +11,3 @@ function ProtectedRoute() {
 
   return <Outlet />
 }
-
-export default ProtectedRoute
