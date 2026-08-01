@@ -3,7 +3,8 @@ import { AuthProvider } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
-import Sales from '@/pages/Sales'
+import SalesPage from '@/pages/SalesPage'
+import SaleDetailPage from '@/pages/SaleDetailPage'
 import Tracebility from '@/pages/Tracebility'
 
 function App() {
@@ -15,7 +16,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/sales" element={<Sales />} />
+            <Route path="/sales" element={<SalesPage />} />
+            <Route path="/sales/:id" element={<SaleDetailPage />} />
+            <Route path="/ventas" element={<Navigate to="/sales" replace />} />
+            <Route path="/ventas/:id" element={<Navigate to="/sales/:id" replace />} />
             <Route path="/traceability" element={<Tracebility />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
