@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: granero-payments-backend
+
+  datasource:
+    url: jdbc:h2:mem:granerodb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:cambia-esta-clave-super-secreta-para-produccion-0123456789}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+    issuer: granero-payments-backend
+
+  open-payments:
+    wallet-address: ${OP_WALLET_ADDRESS:https://ilp.interledger-test.dev/granero-demo}
+    client-id: ${OP_CLIENT_ID:CHANGE_ME_CLIENT_ID}
+    private-key-path: ${OP_PRIVATE_KEY_PATH:classpath:keys/private.pem}
+    key-id: ${OP_KEY_ID:CHANGE_ME_KEY_ID}
+    base-url: ${OP_BASE_URL:https://auth.interledger-test.dev}
+    webhook-callback-url: ${OP_WEBHOOK_CALLBACK_URL:http://localhost:8080/api/v1/webhooks/open-payments}
+    connect-timeout-ms: 5000
+    read-timeout-ms: 10000
+
+logging:
+  level:
+    root: INFO
+    com.granero.payments: DEBUG
+    org.interledger: DEBUG
