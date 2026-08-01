@@ -3,7 +3,7 @@ package com.granero.payments.config;
 import com.granero.payments.util.PemKeyLoader;
 import lombok.RequiredArgsConstructor;
 import org.interledger.openpayments.IOpenPaymentsClient;
-import org.interledger.openpayments.OpenPaymentsHttpClient;
+import org.interledger.openpayments.httpclient.OpenPaymentsHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

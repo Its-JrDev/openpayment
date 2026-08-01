@@ -34,7 +34,7 @@ public class OpenPaymentsClientImpl implements OpenPaymentsClient {
             var incomingPayment = client.payment()
                     .incomingPayment(receiverWallet, grantRequest, monto);
 
-            String paymentId = incomingPayment.id();
+            String paymentId = incomingPayment.getId().toString();
 
             log.info("Incoming Payment creado en el ASE: {}", paymentId);
 
