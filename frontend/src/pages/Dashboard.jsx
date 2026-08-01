@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import Navbar from '@/components/Navbar'
 import SalesCharts from '@/components/SalesCharts'
 import SalesTable from '@/components/SalesTable'
 import { useSales } from '@/hooks/useSales'
@@ -74,9 +73,7 @@ function Dashboard() {
   }, [ventas])
 
   return (
-    <div className="flex min-h-svh flex-col bg-muted/40">
-      <Navbar />
-      <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 p-6">
+    <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 p-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Panel de ventas</h1>
           <p className="text-sm text-muted-foreground">Historial de ventas y pagos P2P</p>
@@ -157,7 +154,6 @@ function Dashboard() {
           </CardContent>
         </Card>
       </main>
-    </div>
   )
 }
 

@@ -20,11 +20,12 @@ const ESTADO_COLORS = {
 }
 
 const tooltipStyle = {
-  background: 'var(--color-card)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius)',
-  fontSize: 12,
-  color: 'var(--color-foreground)',
+  backgroundColor: '#ffffff',
+  border: '1px solid #e2e8f0',
+  borderRadius: '8px',
+  fontSize: '12px',
+  color: '#0f172a',
+  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
 }
 
 function ultimos7Dias() {
@@ -75,7 +76,7 @@ function SalesCharts({ ventas }) {
         <CardContent>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={porDia}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="dia" tickLine={false} axisLine={false} fontSize={12} />
               <YAxis
                 allowDecimals={false}
@@ -84,8 +85,8 @@ function SalesCharts({ ventas }) {
                 axisLine={false}
                 fontSize={12}
               />
-              <Tooltip cursor={{ fill: 'var(--color-muted)' }} contentStyle={tooltipStyle} />
-              <Bar dataKey="ventas" fill="var(--color-primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+              <Tooltip cursor={{ fill: 'rgba(148, 163, 184, 0.15)' }} contentStyle={tooltipStyle} />
+              <Bar dataKey="ventas" fill="#0f172a" radius={[4, 4, 0, 0]} maxBarSize={40} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
