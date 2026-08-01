@@ -4,7 +4,7 @@ import {
     isFinalizedGrantWithAccessToken
 } from '@interledger/open-payments'
 import { RECEIVER_WALLET } from '../constants.js'
-import { receiverClient } from './clientReceiver.js'
+import { receiverClient } from './receiverClient.js'
 import { walletReceivingAddress } from './receiverWallet.js'
 
 export const getReceivingGrant = async () => {

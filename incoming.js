@@ -1,5 +1,5 @@
 import { RECEIVER_WALLET } from "./constants.js"
-import { receiverClient } from "./receiver/clientReceiver.js";
+import { receiverClient } from "./receiver/receiverClient.js";
 import { walletReceivingAddress } from "./receiver/receiverWallet.js";
 import { getReceivingGrant } from "./receiver/receiverGrant.js";
 
