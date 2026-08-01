@@ -90,7 +90,7 @@ export default function SaleForm({ onSubmit, isLoading }) {
                 )}
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full bg-slate-900 hover:bg-black text-white font-medium py-2.5 rounded-lg transition-all">
                 {isLoading ? 'Creando venta…' : 'Crear venta'}
             </Button>
         </form>
