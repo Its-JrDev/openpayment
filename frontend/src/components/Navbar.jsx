@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { LogOut, Wheat } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useSession } from '@/hooks/useSession'
+import { useAuth } from '@/hooks/useAuth'
 
 const navLinks = [
   { to: '/ventas', label: 'Ventas' },
@@ -10,7 +10,7 @@ const navLinks = [
 ]
 
 function Navbar() {
-  const { user, logout } = useSession()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   function handleLogout() {
