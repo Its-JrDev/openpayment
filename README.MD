@@ -1,15 +1,15 @@
-# Interledger: Open Payments
+﻿# Interledger: Open Payments
 
 ## Que vamos a lograr al final de este taller?
 
 1. Registrarnos en el test wallet de open payments.
 2. Crear un wallet para enviar y otro para recibir transferencias.
 3. Familiarizarnos con la terminología de interledger.
-4. Hacer una transacción desde nuessrto editor mediante entre wallets mediante:
+4. Hacer una transacción desde nuestro editor entre wallets mediante:
     * **4.1** Configuración del proyecto.
     * **4.2** Configuración de los clientes para crear las transacciones entre wallets.
-    * **4.3** Montar un servidor con express para capturar la confirmación del usuario mediante la interfaz gráfica de open payments.
-    * **4.4** Realizar paso a paso de una transferencia.
+    * **4.3** Montar un servidor con express para capturar la confirmación del usuario.
+    * **4.4** Ejecutar la transferencia en orden: server → incoming → quote → interact → outgoing.
 
 ## 1 Registrarnos en el test wallet de open payments
 
@@ -164,398 +164,237 @@ export const walletReceivingAddress = await receiverClient.walletAddress.get({
 
 ## 4.3 Montar un servidor con express
 
+Este servidor recibe el redirect de Open Payments tras pulsar **Accept** y muestra el `interact_ref` en consola. Debe estar **corriendo antes** de abrir el link de interacción.
+
 ```js
-//server.js
-
+// server.js
 import express from 'express';
-
-const port = 3000;
 
 const app = express();
 
-app.use((req)=> {
-    console.dir(req.query.interact_ref)
+app.use((req) => {
+  console.dir(req.query.interact_ref) // UUID que copiarás a continueGrant.js
 })
 
-app.listen(port, ()=>console.dir(`Running at port ${port}`))
-
+app.listen(3000, () => console.dir('Running at port 3000'))
 ```
 
 ## 4.4 Paso a paso de una transferencia
 
-```mermaid
-  sequenceDiagram
-      participant Nuestro servicio
-      participant Auth as Auth Server
-      participant Receiver as Receiver wallet
+Orden de ejecución (usa **2 terminales**: una para el server y otra para los scripts):
 
-      Nuestro servicio->>Auth: Solicitar incoming-payment grant
-      Auth-->>Nuestro servicio: Access token (Incoming)
-      Nuestro servicio->>Receiver: 1. Crear incoming payment
-      Receiver-->>Nuestro servicio: incoming payment id
-```
-1. Crear incoming Payment
-  * **1.1** Solicitar incoming payment grant
-  ```js
-    //receiverGrant.js
-      import { receiverClient } from './receiverClient.js'
-      import { walletReceivingAddress } from './receiverWallet.js'
-
-      export const getReceivingGrant = async () => {
-          return await receiverClient.grant.request(
-              {
-                  url: walletReceivingAddress.authServer
-              },
-              {
-                  access_token: {
-                      access: [
-                          {
-                              type: 'incoming-payment',
-                              actions: ['list', 'read', 'read-all', 'complete', 'create']
-                          }
-                      ]
-                  }
-              }
-          )
-      }
-  ```
-
-  * **1.2** Crear incomingPayment
-  ```js
-  //incomingPayment.js
-  import { RECEIVER_WALLET } from "./constants.js"
-  import { receiverClient } from "./receiver/receiverClient.js";
-  import { walletReceivingAddress } from "./receiver/receiverWallet.js";
-  import { getReceivingGrant } from "./receiver/receiverGrant.js";
-
-  const createIncomingPayment = async () => {
-      const receiverGrant = await getReceivingGrant();
-
-      const incomingPayment = await receiverClient.incomingPayment.create(
-          {
-              url: walletReceivingAddress.resourceServer,
-              accessToken: receiverGrant.access_token.value
-          },
-          {
-              walletAddress: RECEIVER_WALLET,
-              incomingAmount: {
-                  value: '1000',
-                  assetCode: walletReceivingAddress.assetCode,
-                  assetScale: walletReceivingAddress.assetScale
-              }
-          }
-      );
-
-      console.dir(incomingPayment)
-  }
-
-  createIncomingPayment();
-
-  ```
-
-  **Respuesta**
-  ```js
-    {
-        id: string, //Se usará en quote.js
-        walletAddress: string,
-        incomingAmount: { value: string, assetCode: string, assetScale: number },
-        receivedAmount: { value: string, assetCode: string, assetScale: number },
-        completed: boolean,
-        createdAt: string,
-        expiresAt: string,
-        methods: [
-            {
-                type: string,
-                ilpAddress: string,
-                sharedSecret: string
-            }
-        ]
-    }
-
-  ```
-
-
-2. Crear Quote
-
-  ```mermaid
-  sequenceDiagram
-    participant Nuestro servicio
-    participant Auth as Auth Server
-    participant Sender as Sender wallet
-
-    %% 2. Quote
-    Nuestro servicio->>Auth: Request quote grant
-    Auth-->>Nuestro servicio: Access token (Quote)
-    Nuestro servicio->>Sender: 2. Request quote (uses incoming payment id)
-    Sender-->>Nuestro servicio: quote id
-  ```
-
-
-  * **2.1** Solicitar grant Quote
-  ```js
-  //senderQuoteGrant.js
-  import { senderClient } from './clientSender.js'
-  import { walletSenderAddress } from './senderWallet.js'
-
-  export const getQuoteGrant = async () => {
-      return await senderClient.grant.request(
-          {
-              url: walletSenderAddress.authServer
-          },
-          {
-              access_token: {
-                  access: [
-                      {
-                          type: 'quote',
-                          actions: ['read', 'create']
-                      }
-                  ]
-              }
-          }
-      )
-  }
-  ```
-
-  * **2.2**
-  crear Quote
-
-  ```js
-  //quote.js
-  import { SENDER_WALLET } from "./constants.js";
-  import { senderClient } from "./sender/clientSender.js";
-  import { getQuoteGrant } from "./sender/senderQuoteGrant.js";
-  import { walletSenderAddress } from "./sender/senderWallet.js";
-
-  const createQuote = async () => {
-
-      const quoteGrant = await getQuoteGrant();
-
-      const quote = await senderClient.quote.create(
-          {
-              url: walletSenderAddress.resourceServer,
-              accessToken: quoteGrant.access_token.value
-          },
-          {
-              method: 'ilp',
-              walletAddress: SENDER_WALLET,
-              receiver: "" //reemplazamos por id retornada por incoming.js
-          }
-      )
-
-      console.dir(quote)
-  }
-
-  createQuote();
-  ```
-  **Respuesta**
-
-  ```js
-    {
-        id: string, //se usará en interact.js y outgoing.js
-        walletAddress: string,
-        receiveAmount: { value: string, assetCode: string, assetScale: number },
-        debitAmount: { value: string, assetCode: string, assetScale: number },
-        receiver: string,
-        expiresAt: string,
-        createdAt: string,
-        method: string
-    }
-  ```
-
-3. Crear iteración
+| Paso | Comando | Qué hace |
+|------|---------|----------|
+| 0 | `npm run server` | Escucha en `http://localhost:3000` el `interact_ref` |
+| 1 | `npm run incoming` | Crea el **incoming payment** (pago a recibir) |
+| 2 | `npm run quote` | Crea el **quote** (cotización del envío) |
+| 3 | `npm run interact` | Pide permiso de pago y genera el **link de Accept** |
+| 4 | (navegador + server) | Confirmas el pago; el server imprime `interact_ref` |
+| 5 | `npm run outgoing` | Continúa el grant y crea el **outgoing payment** |
 
 ```mermaid
 sequenceDiagram
-    participant Nuestro servicio
+    participant Terminal
+    participant Server as Express :3000
     participant Auth as Auth Server
+    participant Receiver as Receiver wallet
     participant Sender as Sender wallet
+    participant Browser as Navegador
 
-    %% 2. Quote
-    Nuestro servicio->>Auth: Request quote grant
-    Auth-->>Nuestro servicio: Access token (Quote)
-    Nuestro servicio->>Sender: 1. Request quote (incoming payment id)
-    Sender-->>Nuestro servicio: quote id
-    Nuestro servicio->>Auth: Request outgoingPayment grant
-    Auth-->> Nuestro servicio: redirect url
+    Terminal->>Server: 0. npm run server
+    Terminal->>Auth: 1. incoming grant
+    Auth-->>Terminal: access token
+    Terminal->>Receiver: crear incoming payment
+    Receiver-->>Terminal: incomingPayment.id
+    Note over Terminal: Pegar id en quote.js → receiver
+    Terminal->>Auth: 2. quote grant
+    Auth-->>Terminal: access token
+    Terminal->>Sender: crear quote
+    Sender-->>Terminal: quote.id
+    Note over Terminal: Pegar quote.id en senderOutgoingGrant.js y outgoing.js
+    Terminal->>Auth: 3. outgoing grant (interact)
+    Auth-->>Terminal: interact.redirect + continue.*
+    Terminal->>Browser: abrir redirect → Accept
+    Browser->>Server: ?interact_ref=...
+    Note over Terminal: Pegar continue.* e interact_ref en continueGrant.js
+    Terminal->>Auth: 5. grant.continue
+    Auth-->>Terminal: access token final
+    Terminal->>Sender: crear outgoing payment
+    Sender-->>Terminal: pago enviado
 ```
 
-* **3.1** Solicitar outgoingPayment grant
+### Tabla rápida: qué copiar y a dónde
 
-```js
-//senderOutgoingGrant.js
-import { senderClient } from './clientSender.js'
-import { walletSenderAddress } from './senderWallet.js'
-import { v4 as uuidv4 } from 'uuid';
+| Origen | Campo / valor | Pegar en | Campo del código |
+|--------|---------------|----------|------------------|
+| Consola de `incoming` | `id` | `quote.js` | `receiver` |
+| Consola de `quote` | `id` | `sender/senderOutgoingGrant.js` | `limits.quoteId` |
+| Consola de `quote` | `id` (mismo) | `outgoing.js` | `quoteId` |
+| Consola de `interact` | `interact.redirect` | Navegador | Abrir URL y pulsar Accept |
+| Consola de `interact` | `continue.access_token.value` | `sender/continueGrant.js` | `accessToken` |
+| Consola de `interact` | `continue.uri` | `sender/continueGrant.js` | `url` |
+| Consola del `server` | `interact_ref` | `sender/continueGrant.js` | `interact_ref` |
 
-export const getOutgoingGrant = async (quote) => {
-    return await senderClient.grant.request(
-        {
-            url: walletSenderAddress.authServer
-        },
-        {
-            access_token: {
-                access: [
-                    {
-                        identifier: walletSenderAddress.id,
-                        type: 'outgoing-payment',
-                        actions: ['list', 'list-all', 'read', 'read-all', 'create'],
-                        limits: {
-                            quoteId: "" //Reemplazamos por id retornado por quote.js
-                        }
-                    }
-                ]
-            }, interact: {
-                start: ['redirect'],
-                finish: {
-                    method: "redirect",
-                    uri: "http://localhost:3000", //Esta url corresponde al servidor que levantamos de express
-                    nonce: uuidv4()
-                }
-            }
-        }
-    )
-}
+---
 
-```
+### Paso 0 — Levantar el servidor
 
-* **3.2** Llamar outgoing grant
-```js
-//interact.js
+En una terminal (no la cierres):
 
-import { SENDER_WALLET } from "./constants.js"
-import { senderClient } from "./sender/clientSender.js"
-import { getOutgoingGrant } from "./sender/senderOutgoingGrant.js"
-import { walletSenderAddress } from "./sender/senderWallet.js"
-
-const interact = async () => {
-    const grant = await getOutgoingGrant();
-    console.dir(grant)
-}
-
-interact();
-```
-
-**Repuesta**
-```js
-{
-  interact: {
-    redirect: string, //Este enlace es el que abriremos para darle al botón de "Accept"
-    finish: string
-  },
-  continue: {
-    access_token: { value: string }, //se usará en outgoing.js
-    uri: string, //se usará en outgoing.js
-    wait: number
-  }
-}
-```
-
-4. Ejecutar Iteración
-
-```mermaid
-sequenceDiagram
-    participant interfaz
-    participant server express
-
-    interfaz->>server express: interact_ref
-```
-
-* **4.1** Levantar servidor
-En nuestra consola escribimos
 ```sh
 npm run server
 ```
 
-* **4.2** Confirmar
-Abrimos la url de redirect que recibimos la respuesta del outgoing grant, hacemos click en Accept, un uuid debe aparecer en la consola donde levantamos el servidor de express
+Debes ver: `Running at port 3000`.
 
-5. Finalizar outgoing
+---
 
-```mermaid
-sequenceDiagram
-    participant Nuestro servicio
-    participant Auth as Auth Server
-    participant Sender as Sender wallet
-    participant interfaz
-    participant server express
+### Paso 1 — Crear incoming payment (`npm run incoming`)
 
-    %% 2. Quote
-    Nuestro servicio->>Auth: Request quote grant
-    Auth-->>Nuestro servicio: Access token (Quote)
-    Nuestro servicio->>Sender: 1. Request quote (uses incoming payment id)
-    Sender-->>Nuestro servicio: quote id
-    Nuestro servicio->>Auth: Request outgoingPayment grant
-    Auth-->>Nuestro servicio: 2. redirect url
-    interfaz->>server express: interact_ref
-    Nuestro servicio->>Auth: Request continue grant
-    Auth-->>Nuestro servicio: Access token
-    Nuestro servicio->>Sender: 3. quote Id, interact_ref, uri
-    Sender-->>Nuestro servicio: Confirmación
+**Qué hace:** pide un grant de `incoming-payment` al auth server del **receiver** y crea un pago entrante (ej. valor `1000` en la escala del asset del wallet).
+
+**Archivos clave:**
+- `receiver/receiverGrant.js` → `getReceivingGrant()`
+- `incoming.js` → crea el payment con ese grant
+
+**Ejecutar:**
+
+```sh
+npm run incoming
 ```
 
-* **5.1** Solicitamos continue grant
+**Qué copiar:** de la respuesta, el campo `id` (URL del incoming payment), por ejemplo:
+
+```text
+https://ilp.interledger-test.dev/.../incoming-payments/<uuid>
+```
+
+**Dónde pegarlo:** en `quote.js`, campo `receiver`:
 
 ```js
-//continueGrant.js
-import { senderClient } from "./clientSender.js"
+receiver: "" // ← pega aquí el id de incoming
+```
 
+---
+
+### Paso 2 — Crear quote (`npm run quote`)
+
+**Qué hace:** pide un grant de tipo `quote` al auth server del **sender** y calcula cuánto se debitará para pagar ese incoming payment.
+
+**Archivos clave:**
+- `sender/senderQuoteGrant.js` → `getQuoteGrant()`
+- `quote.js` → crea el quote (usa el `receiver` del paso 1)
+
+**Ejecutar:**
+
+```sh
+npm run quote
+```
+
+**Qué copiar:** el campo `id` del quote.
+
+**Dónde pegarlo (mismo valor en dos sitios):**
+
+1. `sender/senderOutgoingGrant.js` → `limits.quoteId`
+2. `outgoing.js` → `quoteId`
+
+```js
+// senderOutgoingGrant.js
+limits: {
+  quoteId: "" // ← id del quote
+}
+
+// outgoing.js
+quoteId: "" // ← el mismo id del quote
+```
+
+---
+
+### Paso 3 — Generar link de interacción (`npm run interact`)
+
+**Qué hace:** solicita un grant de `outgoing-payment` limitado a ese `quoteId`. Como implica mover dinero, el auth server exige consentimiento del usuario y devuelve una URL de redirect.
+
+**Archivos clave:**
+- `sender/senderOutgoingGrant.js` → grant con `interact.finish.uri = http://localhost:3000`
+- `interact.js` → imprime la respuesta del grant
+
+**Requisito:** el servidor del paso 0 debe seguir activo.
+
+**Ejecutar:**
+
+```sh
+npm run interact
+```
+
+**Qué copiar de la respuesta:**
+
+| Campo | Uso |
+|-------|-----|
+| `interact.redirect` | Abrir en el navegador |
+| `continue.access_token.value` | → `continueGrant.js` → `accessToken` |
+| `continue.uri` | → `continueGrant.js` → `url` |
+
+---
+
+### Paso 4 — Confirmar en el navegador (Accept)
+
+1. Abre la URL de `interact.redirect`.
+2. Pulsa **Accept**.
+3. El navegador redirige a `http://localhost:3000/?interact_ref=...`.
+4. En la terminal del **server** aparece el UUID de `interact_ref`.
+
+**Dónde pegarlo:** `sender/continueGrant.js` → `interact_ref`:
+
+```js
+// sender/continueGrant.js
 export const getContinueGrant = async () => {
-    return await senderClient.grant.continue(
-        {
-            accessToken: "", //reemplazar por token retornado en interact.js -> continue.access_token.value
-            url: "" //reemplazar por token retornado en interact.js -> continue.uri
-        },
-        {
-            interact_ref: "" //reemplazar por uuid capturado por nuesto serverf
-        }
-    )
+  return await senderClient.grant.continue(
+    {
+      accessToken: "", // ← continue.access_token.value (paso 3)
+      url: ""          // ← continue.uri (paso 3)
+    },
+    {
+      interact_ref: "" // ← UUID impreso por el server (paso 4)
+    }
+  )
 }
 ```
-* **5.2** Finalizamos el outgoingPayment
 
-```js
-//outgoing.js
-import { SENDER_WALLET } from "./constants.js";
-import { senderClient } from "./sender/clientSender.js";
-import { getContinueGrant } from "./sender/continueGrant.js"
-import { walletSenderAddress } from "./sender/senderWallet.js";
+---
 
-const outgoingPayment = async () => {
-    const grant = await getContinueGrant();
+### Paso 5 — Crear outgoing payment (`npm run outgoing`)
 
-    console.dir(grant)
+**Qué hace:** continúa el grant con el `interact_ref` (consentimiento ya dado) y crea el pago saliente usando el `quoteId`.
 
-    const outgoingPayment = await senderClient.outgoingPayment.create(
-        {
-            url: walletSenderAddress.resourceServer,
-            accessToken: grant.access_token.value
-        },
-        {
-            walletAddress: SENDER_WALLET,
-            quoteId: "" //reemplazamos por id retornada por quote.js
-        }
-    )
+**Archivos clave:**
+- `sender/continueGrant.js` → `getContinueGrant()`
+- `outgoing.js` → `outgoingPayment.create(...)`
 
-    console.dir(outgoingPayment)
-}
+**Ejecutar:**
 
-outgoingPayment()
+```sh
+npm run outgoing
 ```
 
-**Respuesta**
+Si todo va bien, la consola muestra el outgoing payment (`id`, `sentAmount`, `failed: false`, etc.) y el saldo debería moverse en el test wallet.
 
-```js
-{
-  id: string,
-  walletAddress: string,
-  quoteId: string,
-  receiveAmount: { value: string, assetCode: string, assetScale: number },
-  debitAmount: { value: string, assetCode: string, assetScale: number },
-  sentAmount: { value: string, assetCode: string, assetScale: number },
-  receiver: string,
-  failed: boolean,
-  createdAt: string,
-  grantSpentReceiveAmount: { value: string, assetCode: string, assetScale: number },
-  grantSpentDebitAmount: { value: string, assetCode: string, assetScale: number }
-}
+---
+
+### Resumen de comandos (checklist)
+
+```sh
+# Terminal 1
+npm run server
+
+# Terminal 2 (después de cada pegado de IDs)
+npm run incoming   # → copiar id → quote.js (receiver)
+npm run quote      # → copiar id → senderOutgoingGrant.js + outgoing.js
+npm run interact   # → abrir redirect; copiar continue.* → continueGrant.js
+                   # → Accept; copiar interact_ref del server → continueGrant.js
+npm run outgoing
 ```
+
+**Notas:**
+- Los `id` de incoming/quote suelen caducar; si falla un paso tardío, vuelve a generar desde `incoming`.
+- `401 invalid_client` / `invalid signature` → revisa el mapa wallet / Key ID / `.key` de la sección **2.2**.
+- No mezcles tokens de un `interact` viejo con un `interact_ref` nuevo: regenera el paso 3 y 4 juntos.
