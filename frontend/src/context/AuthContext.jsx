@@ -1,46 +1,39 @@
-import { useEffect, useMemo, useState } from 'react'
-import { login as apiLogin } from '@/api/auth'
+import { useMemo, useState } from 'react'
 import { AuthContext } from '@/context/auth-context'
+import {
+  login as serviceLogin,
+  logout as serviceLogout,
+  getCurrentUser,
+  getToken,
+} from '@/services/authService'
 
-const STORAGE_KEY = 'granero.auth'
-
-function readStoredSession() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-
-function persistSession(session) {
-  if (session) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
-  } else {
-    localStorage.removeItem(STORAGE_KEY)
-  }
+function readInitialSession() {
+  const user = getCurrentUser()
+  const token = getToken()
+  return { user, token }
 }
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(readStoredSession)
+  const [session, setSession] = useState(readInitialSession)
 
-  useEffect(() => {
-    persistSession(session)
-  }, [session])
-
-  const value = useMemo(
-    () => ({
-      user: session?.user ?? null,
-      token: session?.token ?? null,
-      isAuthenticated: Boolean(session?.token),
+  const value = useMemo(() => {
+    const user = session.user
+    const token = session.token
+    return {
+      user,
+      rol: user?.rol ?? null,
+      token,
+      isAuthenticated: Boolean(token),
       login: async (email, password) => {
-        const data = await apiLogin(email, password)
-        setSession({ token: data.token, user: data.user })
+        const next = await serviceLogin(email, password)
+        setSession({ user: next.user, token: next.token })
       },
-      logout: () => setSession(null),
-    }),
-    [session],
-  )
+      logout: () => {
+        serviceLogout()
+        setSession({ user: null, token: null })
+      },
+    }
+  }, [session])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

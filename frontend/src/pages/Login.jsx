@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -13,17 +13,23 @@ import { useAuth } from '@/hooks/useAuth'
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Ingresa tu email').email('Email inválido'),
-  password: z.string().min(1, 'Ingresa tu contraseña').min(6, 'Mínimo 6 caracteres'),
+  password: z.string().min(1, 'Ingresa tu contraseña').min(4, 'Mínimo 4 caracteres'),
 })
 
 function Login() {
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState(null)
 
   const from = location.state?.from?.pathname ?? '/'
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, from, navigate])
 
   const {
     register,
@@ -38,7 +44,6 @@ function Login() {
     setAuthError(null)
     try {
       await login(values.email, values.password)
-      navigate(from, { replace: true })
     } catch (error) {
       setAuthError(error.message || 'No se pudo iniciar sesión')
     }

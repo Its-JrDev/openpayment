@@ -15,8 +15,11 @@
   "description": "1. Registrarnos en el test wallet de open payments. 2. Crear un wallet para enviar y otro para recibir transferencias. 3. Familiarizarnos con la terminología de interledger. 4. Hacer una transacción desde nuestro editor entre wallets mediante:     * **4.1** Configuración del proyecto.     * **4.2** Configuración de los clientes para crear las transacciones entre wallets.     * **4.3** Montar un servidor con express para capturar la confirmación del usuario.     * **4.4** Ejecutar la transferencia en orden: server → incoming → quote → interact → outgoing.",
   "dependencies": {
     "@interledger/open-payments": "^7.4.0",
+    "@tailwindcss/vite": "^4.3.3",
     "axios": "^1.19.0",
     "express": "^5.2.1",
+    "react-router": "^8.3.0",
+    "tailwindcss": "^4.3.3",
     "uuid": "^14.0.1"
   },
   "directories": {
