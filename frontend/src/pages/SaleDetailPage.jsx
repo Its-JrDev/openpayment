@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { ArrowLeft, Hash, Coins, Network, CalendarClock } from 'lucide-react'
+import { ArrowLeft, Hash, Coins, Network, CalendarClock, FileText } from 'lucide-react'
 
 function formatAmount(monto, moneda) {
     return new Intl.NumberFormat('es-MX', {
@@ -96,6 +96,13 @@ export default function SaleDetailPage() {
                                 </div>
 
                                 <div className="grid divide-y border-t border-border/60">
+                                    {venta.motivo && (
+                                        <DetailRow
+                                            icon={FileText}
+                                            label="Concepto"
+                                            value={venta.motivo}
+                                        />
+                                    )}
                                     <DetailRow
                                         icon={Hash}
                                         label="Identificador de Venta"

@@ -18,6 +18,7 @@ const schema = z.object({
         .min(1, 'El monto es requerido')
         .refine((v) => !isNaN(Number(v)) && Number(v) > 0, 'Debe ser mayor a 0'),
     moneda: z.enum(['USD', 'MXN', 'COP', 'ARS']),
+    motivo: z.string().min(1, 'Agrega un motivo').max(100, 'Máximo 100 caracteres'),
 })
 
 export default function SaleForm({ onSubmit, isLoading }) {
@@ -39,6 +40,20 @@ export default function SaleForm({ onSubmit, isLoading }) {
 
     return (
         <form onSubmit={handleSubmit(submit)} className="grid gap-5">
+            <div className="grid gap-2">
+                <Label htmlFor="motivo">Motivo o descripción</Label>
+                <Input
+                    id="motivo"
+                    type="text"
+                    placeholder="Ej. Pago de servicios integrales"
+                    {...register('motivo')}
+                    className={errors.motivo ? 'border-destructive' : ''}
+                />
+                {errors.motivo && (
+                    <p className="text-xs text-destructive">{errors.motivo.message}</p>
+                )}
+            </div>
+
             <div className="grid gap-2">
                 <Label htmlFor="monto_total">Monto</Label>
                 <Input

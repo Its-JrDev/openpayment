@@ -61,6 +61,11 @@ export default function SalesList({ ventas }) {
                                         <span>•</span>
                                         <span>{formatDate(venta.fecha)}</span>
                                     </div>
+                                    {venta.motivo && (
+                                        <p className="text-sm text-foreground/80 mt-1 line-clamp-1">
+                                            {venta.motivo}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 

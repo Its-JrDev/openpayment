@@ -25,12 +25,13 @@ function fakePaymentUrl(id) {
   return `https://openpayments.granero.local/incoming/${id}`
 }
 
-function buildVenta(comercianteId, moneda, monto) {
+function buildVenta(comercianteId, moneda, monto, motivo) {
   return {
     id: Date.now(),
     comerciante_id: comercianteId,
     monto_total: monto,
     moneda,
+    motivo,
     estado_venta: 'PENDIENTE',
     fecha: new Date().toISOString(),
     payment_url: fakePaymentUrl(Date.now()),
@@ -38,10 +39,10 @@ function buildVenta(comercianteId, moneda, monto) {
   }
 }
 
-function mockCrearVenta({ comerciante_id, moneda, monto_total }) {
+function mockCrearVenta({ comerciante_id, moneda, monto_total, motivo }) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const venta = buildVenta(comerciante_id, moneda, monto_total)
+      const venta = buildVenta(comerciante_id, moneda, monto_total, motivo)
       const ventas = readVentas()
       ventas.unshift(venta)
       writeVentas(ventas)
