@@ -47,7 +47,7 @@ export default function NewSaleModal() {
             Genera un link de cobro Open Payments al instante
           </DialogDescription>
         </DialogHeader>
-        <p className="mb-2 text-sm text-destructive" className="mb-2 text-sm text-destructive">{error}</p>
+        {error && <p className="mb-2 text-sm text-destructive">{error}</p>}
         <SaleForm onSubmit={handleSubmit} isLoading={loading} />
       </DialogContent>
     </Dialog>
